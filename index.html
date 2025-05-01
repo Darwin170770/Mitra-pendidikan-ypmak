@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Peta Interaktif Mitra Pendidikan</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
@@ -46,7 +44,7 @@
 
   <label for="wilayahFilter">Filter Wilayah:</label>
   <select id="wilayahFilter">
-    <option value="ALL">Semua Kota</option>
+    <option value="ALL">Semua Wilayah</option>
   </select>
 
   <button onclick="downloadData('geojson')">Unduh GeoJSON</button>
@@ -68,41 +66,35 @@
   var markers = L.markerClusterGroup();
   var allLayers = [];
   let geojsonData;
-let wilayahSet = new Set();
+  let wilayahSet = new Set();
 
-  fetch('Mitra_Pendidikan_Detail.geojson')
+  fetch('Mitra_Pendidikan_Final.geojson')
     .then(res => res.json())
     .then(data => {
       geojsonData = data;
-      var kotaSet = new Set();
 
       var geojsonLayer = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
           const p = feature.properties;
           const nama = p['NAMA MITRA PENDIDIKAN'] || 'Tanpa Nama';
           const program = p['PROGRAM'] || '-';
+          const wilayah = p['WILAYAH PENERIMA BEASISWA'] || '-';
           const jmhs = p['JUMLAH MAHASISWA'] || 0;
           const laki = p['LAKI-LAKI'] || 0;
           const perempuan = p['PEREMPUAN'] || 0;
-
           const suku_list = ['AMUNGME','KAMORO','DAMAL','DANI','MEE','MONI','NDUGA','PAPUA LAIN','LUAR PAPUA'];
-          const suku_info = suku_list.map(suku => {
-            return `<li>${suku}: ${p[suku] || 0}</li>`;
-          }).join("");
-
-          const html = `
-            <b>${nama.toUpperCase()}</b><br>
-            Program: ${program}<br>
-            Jumlah Mahasiswa: ${jmhs}<br>
-            Laki-laki: ${laki} | Perempuan: ${perempuan}<br>
-            <br><b>Suku:</b><ul>${suku_info}</ul>
-          `;
-
+          const suku_info = suku_list.map(suku => '<li>' + suku + ': ' + (p[suku] || 0) + '</li>').join("");
+          const html = '<b>' + nama.toUpperCase() + '</b><br>' +
+                       'Program: ' + program + '<br>' +
+                       'Wilayah: ' + wilayah + '<br>' +
+                       'Jumlah Mahasiswa: ' + jmhs + '<br>' +
+                       'Laki-laki: ' + laki + ' | Perempuan: ' + perempuan + '<br>' +
+                       '<b>Suku:</b><ul>' + suku_info + '</ul>';
           layer.bindPopup(html);
           layer.featureProgram = program;
-          layer.featureWilayah = p["WILAYAH PENERIMA BEASISWA"] ? p["WILAYAH PENERIMA BEASISWA"].toUpperCase() : "-"
+          layer.featureWilayah = wilayah.toUpperCase();
           allLayers.push(layer);
-          kotaSet.add(layer.featureWilayah);
+          wilayahSet.add(layer.featureWilayah);
         },
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
@@ -129,10 +121,10 @@ let wilayahSet = new Set();
       map.addControl(searchControl);
 
       const wilayahFilter = document.getElementById("wilayahFilter");
-      Array.from(wilayahSet).sort().forEach(kota => {
+      Array.from(wilayahSet).sort().forEach(wilayah => {
         let opt = document.createElement("option");
-        opt.value = kota;
-        opt.innerText = kota;
+        opt.value = wilayah;
+        opt.innerText = wilayah;
         wilayahFilter.appendChild(opt);
       });
 
@@ -141,13 +133,13 @@ let wilayahSet = new Set();
 
       function applyFilters() {
         const program = document.getElementById("programFilter").value;
-        const kota = document.getElementById("wilayahFilter").value;
+        const wilayah = document.getElementById("wilayahFilter").value;
         markers.clearLayers();
         var filtered = L.featureGroup();
         allLayers.forEach(function (layer) {
           const matchProgram = program === "ALL" || layer.featureProgram === program;
-          const matchKota = kota === "ALL" || layer.featureWilayah === kota;
-          if (matchProgram && matchKota) {
+          const matchWilayah = wilayah === "ALL" || layer.featureWilayah === wilayah;
+          if (matchProgram && matchWilayah) {
             filtered.addLayer(layer);
           }
         });
@@ -167,7 +159,7 @@ let wilayahSet = new Set();
     } else if (format === 'csv') {
       const rows = geojsonData.features.map(f => {
         const p = f.properties;
-        return `"${p['NAMA MITRA PENDIDIKAN']}","${p['PROGRAM']}","${f.geometry.coordinates[1]}","${f.geometry.coordinates[0]}"`;
+        return '"' + p['NAMA MITRA PENDIDIKAN'] + '","' + p['PROGRAM'] + '","' + f.geometry.coordinates[1] + '","' + f.geometry.coordinates[0] + '"';
       });
       const csv = "NAMA MITRA PENDIDIKAN,PROGRAM,LATITUDE,LONGITUDE\n" + rows.join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
