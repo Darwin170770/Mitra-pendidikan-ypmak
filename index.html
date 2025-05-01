@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Peta Interaktif Mitra Pendidikan</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
@@ -44,8 +42,8 @@
     <option value="BEASISWA UMUM">BEASISWA UMUM</option>
   </select>
 
-  <label for="kotaFilter">Filter Kota:</label>
-  <select id="kotaFilter">
+  <label for="wilayahFilter">Filter Wilayah:</label>
+  <select id="wilayahFilter">
     <option value="ALL">Semua Kota</option>
   </select>
 
@@ -69,39 +67,22 @@
   var allLayers = [];
   let geojsonData;
 
-  fetch('Mitra_Pendidikan_Detail.geojson')
+  fetch('Mitra_Pendidikan.geojson')
     .then(res => res.json())
     .then(data => {
       geojsonData = data;
-      var kotaSet = new Set();
+      var wilayahSet = new Set();
 
       var geojsonLayer = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
-          const p = feature.properties;
-          const nama = p['NAMA MITRA PENDIDIKAN'] || 'Tanpa Nama';
-          const program = p['PROGRAM'] || '-';
-          const jmhs = p['JUMLAH MAHASISWA'] || 0;
-          const laki = p['LAKI-LAKI'] || 0;
-          const perempuan = p['PEREMPUAN'] || 0;
-
-          const suku_list = ['AMUNGME','KAMORO','DAMAL','DANI','MEE','MONI','NDUGA','PAPUA LAIN','LUAR PAPUA'];
-          const suku_info = suku_list.map(suku => {
-            return `<li>${suku}: ${p[suku] || 0}</li>`;
-          }).join("");
-
-          const html = `
-            <b>${nama.toUpperCase()}</b><br>
-            Program: ${program}<br>
-            Jumlah Mahasiswa: ${jmhs}<br>
-            Laki-laki: ${laki} | Perempuan: ${perempuan}<br>
-            <br><b>Suku:</b><ul>${suku_info}</ul>
-          `;
-
-          layer.bindPopup(html);
+          const nama = feature.properties['NAMA MITRA PENDIDIKAN'] || 'Tanpa Nama';
+          const program = feature.properties['PROGRAM'] || 'Tidak Diketahui';
+          const kota = nama.split(" ").slice(-1)[0].toUpperCase();
+          layer.bindPopup(`<strong>${nama}</strong><br>Program: ${program}`);
           layer.featureProgram = program;
-          layer.featureKota = nama.split(" ").slice(-1)[0].toUpperCase();
+          layer.featureWilayah = kota;
           allLayers.push(layer);
-          kotaSet.add(layer.featureKota);
+          kotaSet.add(kota);
         },
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
@@ -127,25 +108,25 @@
       });
       map.addControl(searchControl);
 
-      const kotaFilter = document.getElementById("kotaFilter");
-      Array.from(kotaSet).sort().forEach(kota => {
+      const wilayahFilter = document.getElementById("wilayahFilter");
+      Array.from(wilayahSet).sort().forEach(kota => {
         let opt = document.createElement("option");
         opt.value = kota;
         opt.innerText = kota;
-        kotaFilter.appendChild(opt);
+        wilayahFilter.appendChild(opt);
       });
 
       document.getElementById("programFilter").addEventListener("change", applyFilters);
-      document.getElementById("kotaFilter").addEventListener("change", applyFilters);
+      document.getElementById("wilayahFilter").addEventListener("change", applyFilters);
 
       function applyFilters() {
         const program = document.getElementById("programFilter").value;
-        const kota = document.getElementById("kotaFilter").value;
+        const kota = document.getElementById("wilayahFilter").value;
         markers.clearLayers();
         var filtered = L.featureGroup();
         allLayers.forEach(function (layer) {
           const matchProgram = program === "ALL" || layer.featureProgram === program;
-          const matchKota = kota === "ALL" || layer.featureKota === kota;
+          const matchKota = kota === "ALL" || layer.featureWilayah === kota;
           if (matchProgram && matchKota) {
             filtered.addLayer(layer);
           }
