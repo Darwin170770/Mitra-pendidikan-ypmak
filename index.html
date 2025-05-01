@@ -67,7 +67,7 @@
   var allLayers = [];
   let geojsonData;
 
-  fetch('Mitra_Pendidikan.geojson')
+  fetch('Mitra_Pendidikan_Detail.geojson')
     .then(res => res.json())
     .then(data => {
       geojsonData = data;
@@ -82,7 +82,7 @@
           layer.featureProgram = program;
           layer.featureWilayah = kota;
           allLayers.push(layer);
-          kotaSet.add(kota);
+          wilayahSet.add(layer.featureWilayah);
         },
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
