@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Peta Interaktif Mitra Pendidikan</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-search/dist/leaflet-search.min.css" />
+  <style>
+    #map { height: 100vh; }
+    .control-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 999;
+      background: white;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: sans-serif;
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    }
+    .control-box label {
+      font-weight: bold;
+      margin-top: 4px;
+      display: block;
+    }
+    .control-box select, .control-box button {
+      width: 100%;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="control-box">
+  <label for="programFilter">Filter Program:</label>
+  <select id="programFilter">
+    <option value="ALL">Semua</option>
+    <option value="BEASISWA KHUSUS">BEASISWA KHUSUS</option>
+    <option value="BEASISWA UMUM">BEASISWA UMUM</option>
+  </select>
+
+  <label for="wilayahFilter">Filter Wilayah:</label>
+  <select id="wilayahFilter">
+    <option value="ALL">Semua Kota</option>
+  </select>
+
+  <button onclick="downloadData('geojson')">Unduh GeoJSON</button>
+  <button onclick="downloadData('csv')">Unduh CSV</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-control-search/dist/leaflet-search.min.js"></script>
+
+<script>
+  var map = L.map('map').setView([-2.5, 133], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var markers = L.markerClusterGroup();
+  var allLayers = [];
+  let geojsonData;
+
+  fetch('Mitra_Pendidikan.geojson')
+    .then(res => res.json())
+    .then(data => {
+      geojsonData = data;
+      var wilayahSet = new Set();
+
+      var geojsonLayer = L.geoJSON(data, {
+        onEachFeature: function (feature, layer) {
+          const nama = feature.properties['NAMA MITRA PENDIDIKAN'] || 'Tanpa Nama';
+          const program = feature.properties['PROGRAM'] || 'Tidak Diketahui';
+          const kota = nama.split(" ").slice(-1)[0].toUpperCase();
+          layer.bindPopup(`<strong>${nama}</strong><br>Program: ${program}`);
+          layer.featureProgram = program;
+          layer.featureWilayah = kota;
+          allLayers.push(layer);
+          kotaSet.add(kota);
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, {
+            radius: 6,
+            fillColor: "#007bff",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+          });
+        }
+      });
+
+      markers.addLayer(geojsonLayer);
+      map.addLayer(markers);
+
+      var searchControl = new L.Control.Search({
+        layer: geojsonLayer,
+        propertyName: 'NAMA MITRA PENDIDIKAN',
+        initial: false,
+        zoom: 12,
+        marker: false
+      });
+      map.addControl(searchControl);
+
+      const wilayahFilter = document.getElementById("wilayahFilter");
+      Array.from(wilayahSet).sort().forEach(kota => {
+        let opt = document.createElement("option");
+        opt.value = kota;
+        opt.innerText = kota;
+        wilayahFilter.appendChild(opt);
+      });
+
+      document.getElementById("programFilter").addEventListener("change", applyFilters);
+      document.getElementById("wilayahFilter").addEventListener("change", applyFilters);
+
+      function applyFilters() {
+        const program = document.getElementById("programFilter").value;
+        const kota = document.getElementById("wilayahFilter").value;
+        markers.clearLayers();
+        var filtered = L.featureGroup();
+        allLayers.forEach(function (layer) {
+          const matchProgram = program === "ALL" || layer.featureProgram === program;
+          const matchKota = kota === "ALL" || layer.featureWilayah === kota;
+          if (matchProgram && matchKota) {
+            filtered.addLayer(layer);
+          }
+        });
+        markers.addLayer(filtered);
+      }
+    });
+
+  function downloadData(format) {
+    if (!geojsonData) return;
+    if (format === 'geojson') {
+      const blob = new Blob([JSON.stringify(geojsonData)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Mitra_Pendidikan.geojson";
+      a.click();
+    } else if (format === 'csv') {
+      const rows = geojsonData.features.map(f => {
+        const p = f.properties;
+        return `"${p['NAMA MITRA PENDIDIKAN']}","${p['PROGRAM']}","${f.geometry.coordinates[1]}","${f.geometry.coordinates[0]}"`;
+      });
+      const csv = "NAMA MITRA PENDIDIKAN,PROGRAM,LATITUDE,LONGITUDE\n" + rows.join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Mitra_Pendidikan.csv";
+      a.click();
+    }
+  }
+</script>
+</body>
+</html>
