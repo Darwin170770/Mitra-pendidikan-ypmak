@@ -1,175 +1,129 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Peta Interaktif Mitra Pendidikan</title>
-  <meta charset="utf-8" />
+  <title>Peta dan Grafik Mitra Pendidikan</title>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-search/dist/leaflet-search.min.css" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    #map { height: 100vh; }
-    .control-box {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 999;
-      background: white;
-      padding: 8px;
-      border-radius: 4px;
-      font-family: sans-serif;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    }
-    .control-box label {
-      font-weight: bold;
-      margin-top: 4px;
-      display: block;
-    }
-    .control-box select, .control-box button {
-      width: 100%;
-      margin-bottom: 6px;
-    }
+    body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { height: 60vh; }
+    .charts { display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px; }
+    .chart-box { width: 400px; margin: 10px; }
   </style>
 </head>
 <body>
 
-<div class="control-box">
-  <label for="programFilter">Filter Program:</label>
-  <select id="programFilter">
-    <option value="ALL">Semua</option>
-    <option value="BEASISWA KHUSUS">BEASISWA KHUSUS</option>
-    <option value="BEASISWA UMUM">BEASISWA UMUM</option>
-  </select>
-
-  <label for="wilayahFilter">Filter Wilayah:</label>
-  <select id="wilayahFilter">
-    <option value="ALL">Semua Wilayah</option>
-  </select>
-
-  <button onclick="downloadData('geojson')">Unduh GeoJSON</button>
-  <button onclick="downloadData('csv')">Unduh CSV</button>
-</div>
-
 <div id="map"></div>
 
+<div class="charts">
+  <div class="chart-box">
+    <canvas id="genderChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <canvas id="programChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <canvas id="wilayahChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <canvas id="sukuChart"></canvas>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-<script src="https://unpkg.com/leaflet-control-search/dist/leaflet-search.min.js"></script>
 
 <script>
+  // Peta Leaflet
   var map = L.map('map').setView([-2.5, 133], 5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  var markers = L.markerClusterGroup();
-  var allLayers = [];
-  let geojsonData;
-  let wilayahSet = new Set();
-
   fetch('Mitra_Pendidikan_Final.geojson')
     .then(res => res.json())
     .then(data => {
-      geojsonData = data;
-
+      var markers = L.markerClusterGroup();
       var geojsonLayer = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
           const p = feature.properties;
-          const nama = p['NAMA MITRA PENDIDIKAN'] || 'Tanpa Nama';
-          const program = p['PROGRAM'] || '-';
-          const wilayah = p['WILAYAH PENERIMA BEASISWA'] || '-';
-          const jmhs = p['JUMLAH MAHASISWA'] || 0;
-          const laki = p['LAKI-LAKI'] || 0;
-          const perempuan = p['PEREMPUAN'] || 0;
-          const suku_list = ['AMUNGME','KAMORO','DAMAL','DANI','MEE','MONI','NDUGA','PAPUA LAIN','LUAR PAPUA'];
-          const suku_info = suku_list.map(suku => '<li>' + suku + ': ' + (p[suku] || 0) + '</li>').join("");
-          const html = '<b>' + nama.toUpperCase() + '</b><br>' +
-                       'Program: ' + program + '<br>' +
-                       'Wilayah: ' + wilayah + '<br>' +
-                       'Jumlah Mahasiswa: ' + jmhs + '<br>' +
-                       'Laki-laki: ' + laki + ' | Perempuan: ' + perempuan + '<br>' +
-                       '<b>Suku:</b><ul>' + suku_info + '</ul>';
-          layer.bindPopup(html);
-          layer.featureProgram = program;
-          layer.featureWilayah = wilayah.toUpperCase();
-          allLayers.push(layer);
-          wilayahSet.add(layer.featureWilayah);
-        },
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 6,
-            fillColor: "#007bff",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          });
+          const popup = `<strong>${p['NAMA MITRA PENDIDIKAN']}</strong><br>
+          Program: ${p['PROGRAM']}<br>
+          Wilayah: ${p['WILAYAH']}<br>
+          Mahasiswa: ${p['JUMLAH MAHASISWA']}<br>
+          Laki-laki: ${p['LAKI-LAKI']}<br>
+          Perempuan: ${p['PEREMPUAN']}`;
+          layer.bindPopup(popup);
         }
       });
-
       markers.addLayer(geojsonLayer);
       map.addLayer(markers);
-
-      var searchControl = new L.Control.Search({
-        layer: geojsonLayer,
-        propertyName: 'NAMA MITRA PENDIDIKAN',
-        initial: false,
-        zoom: 12,
-        marker: false
-      });
-      map.addControl(searchControl);
-
-      const wilayahFilter = document.getElementById("wilayahFilter");
-      Array.from(wilayahSet).sort().forEach(wilayah => {
-        let opt = document.createElement("option");
-        opt.value = wilayah;
-        opt.innerText = wilayah;
-        wilayahFilter.appendChild(opt);
-      });
-
-      document.getElementById("programFilter").addEventListener("change", applyFilters);
-      document.getElementById("wilayahFilter").addEventListener("change", applyFilters);
-
-      function applyFilters() {
-        const program = document.getElementById("programFilter").value;
-        const wilayah = document.getElementById("wilayahFilter").value;
-        markers.clearLayers();
-        var filtered = L.featureGroup();
-        allLayers.forEach(function (layer) {
-          const matchProgram = program === "ALL" || layer.featureProgram === program;
-          const matchWilayah = wilayah === "ALL" || layer.featureWilayah === wilayah;
-          if (matchProgram && matchWilayah) {
-            filtered.addLayer(layer);
-          }
-        });
-        markers.addLayer(filtered);
-      }
     });
 
-  function downloadData(format) {
-    if (!geojsonData) return;
-    if (format === 'geojson') {
-      const blob = new Blob([JSON.stringify(geojsonData)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Mitra_Pendidikan.geojson";
-      a.click();
-    } else if (format === 'csv') {
-      const rows = geojsonData.features.map(f => {
-        const p = f.properties;
-        return '"' + p['NAMA MITRA PENDIDIKAN'] + '","' + p['PROGRAM'] + '","' + f.geometry.coordinates[1] + '","' + f.geometry.coordinates[0] + '"';
+  // Grafik Chart.js
+  fetch('chart_data.json')
+    .then(res => res.json())
+    .then(data => {
+      new Chart(document.getElementById("genderChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(data.gender),
+          datasets: [{ data: Object.values(data.gender), backgroundColor: ['#007bff', '#ff6384'] }]
+        },
+        options: { plugins: { title: { display: true, text: 'Distribusi Gender' } } }
       });
-      const csv = "NAMA MITRA PENDIDIKAN,PROGRAM,LATITUDE,LONGITUDE\n" + rows.join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Mitra_Pendidikan.csv";
-      a.click();
-    }
-  }
+
+      new Chart(document.getElementById("programChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(data.program),
+          datasets: [{ data: Object.values(data.program), backgroundColor: ['#28a745', '#ffc107'] }]
+        },
+        options: { plugins: { title: { display: true, text: 'Distribusi Program' } } }
+      });
+
+      new Chart(document.getElementById("wilayahChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(data.wilayah),
+          datasets: [{ data: Object.values(data.wilayah), backgroundColor: Object.keys(data.wilayah).map((_,i)=>`hsl(${i*30},70%,60%)`) }]
+        },
+        options: { plugins: { title: { display: true, text: 'Distribusi Wilayah' } } }
+      });
+
+      const sukuLabels = Object.keys(data.suku_by_program["BEASISWA UMUM"]);
+      const umumValues = sukuLabels.map(s => data.suku_by_program["BEASISWA UMUM"][s] || 0);
+      const khususValues = sukuLabels.map(s => data.suku_by_program["BEASISWA KHUSUS"][s] || 0);
+      new Chart(document.getElementById("sukuChart"), {
+        type: "bar",
+        data: {
+          labels: sukuLabels,
+          datasets: [
+            { label: "Umum", data: umumValues, backgroundColor: "#36a2eb" },
+            { label: "Khusus", data: khususValues, backgroundColor: "#ff6384" }
+          ]
+        },
+        options: {
+          plugins: { title: { display: true, text: 'Jumlah Mahasiswa per Suku' } },
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    });
 </script>
+
 </body>
 </html>

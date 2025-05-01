@@ -1,0 +1,56 @@
+{
+  "gender": {
+    "Laki-laki": 815,
+    "Perempuan": 547
+  },
+  "program": {
+    "BEASISWA UMUM": 129,
+    "BEASISWA KHUSUS": 59
+  },
+  "wilayah": {
+    "WILAYAH JATENG": 52,
+    "WILAYAH JABAR": 46,
+    "WILAYAH TIMIKA": 43,
+    "WILAYAH JATIM": 33,
+    "WILAYAH TIMUR": 7,
+    "WILAYAH TENGAH": 7
+  },
+  "suku_by_program": {
+    "AMUNGME": {
+      "BEASISWA KHUSUS": 243.0,
+      "BEASISWA UMUM": 280.0
+    },
+    "KAMORO": {
+      "BEASISWA KHUSUS": 201.0,
+      "BEASISWA UMUM": 135.0
+    },
+    "DAMAL": {
+      "BEASISWA KHUSUS": 49.0,
+      "BEASISWA UMUM": 18.0
+    },
+    "DANI": {
+      "BEASISWA KHUSUS": 87.0,
+      "BEASISWA UMUM": 28.0
+    },
+    "MEE": {
+      "BEASISWA KHUSUS": 106.0,
+      "BEASISWA UMUM": 48.0
+    },
+    "MONI": {
+      "BEASISWA KHUSUS": 48.0,
+      "BEASISWA UMUM": 24.0
+    },
+    "NDUGA": {
+      "BEASISWA KHUSUS": 27.0,
+      "BEASISWA UMUM": 18.0
+    },
+    "PAPUA LAIN": {
+      "BEASISWA KHUSUS": 29.0,
+      "BEASISWA UMUM": 12.0
+    },
+    "LUAR PAPUA": {
+      "BEASISWA KHUSUS": 5.0,
+      "BEASISWA UMUM": 4.0
+    }
+  }
+}
