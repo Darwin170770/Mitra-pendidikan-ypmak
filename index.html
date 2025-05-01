@@ -68,6 +68,7 @@
   var markers = L.markerClusterGroup();
   var allLayers = [];
   let geojsonData;
+let wilayahSet = new Set();
 
   fetch('Mitra_Pendidikan_Detail.geojson')
     .then(res => res.json())
@@ -99,7 +100,7 @@
 
           layer.bindPopup(html);
           layer.featureProgram = program;
-          layer.featureWilayah = nama.split(" ").slice(-1)[0].toUpperCase();
+          layer.featureWilayah = p["WILAYAH PENERIMA BEASISWA"] ? p["WILAYAH PENERIMA BEASISWA"].toUpperCase() : "-"
           allLayers.push(layer);
           kotaSet.add(layer.featureWilayah);
         },
