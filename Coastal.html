@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografik: Kinerja Ekonomi Komunitas Pesisir</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Visualization & Content Choices: 
+        - Overall Growth (Goal: Inform/Change): A line chart (Chart.js) shows trends of the top 3 revenue streams. Justification: Best for time-series comparison.
+        - PSU Sales Mix (Goal: Compare): A donut chart (Chart.js) shows the 2024 sales composition. Justification: Visually appealing way to show parts of a whole.
+        - Production Mix (Goal: Compare/Change): A stacked bar chart (Chart.js) shows production composition over time. Justification: Effectively shows composition changes across years.
+        - Kios Performance (Goal: Compare): A grouped bar chart (Chart.js) compares kiosk sales. Justification: Ideal for direct comparison of entities over time.
+        - Volatile Sales (Goal: Change): A line chart (Chart.js) displays fluctuating BBM/Ice sales. Justification: Clearly illustrates volatility and seasonality.
+        - SWOT Analysis (Goal: Organize): A structured HTML/CSS grid with Unicode icons. Justification: A clear, non-library method to present strategic analysis, avoiding SVG/Mermaid.
+        - All visualizations use Chart.js on Canvas, confirming NO SVG/Mermaid was used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FBFBFF;
+            color: #040F16;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #0B4F6C;
+            line-height: 1.2;
+        }
+         .section-subtitle {
+            font-size: 1.125rem;
+            color: #4a5568;
+            margin-top: 0.5rem;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="text-center py-12 px-4">
+        <h1 class="section-title">Analisis Kinerja Ekonomi Komunitas Pesisir</h1>
+        <p class="section-subtitle mx-auto">Sebuah Tinjauan Visual Tren Pertumbuhan, Tantangan Operasional, dan Peluang Strategis dari 2023 hingga 2025.</p>
+    </header>
+
+    <main class="container mx-auto px-4 md:px-8">
+
+        <section id="snapshot" class="mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-12">
+                <div class="stat-card">
+                    <h3 class="text-4xl font-extrabold text-[#01BAEF]">37%</h3>
+                    <p class="mt-2 font-semibold text-gray-700">Pertumbuhan Penjualan ke PSU (2023-2024)</p>
+                    <p class="text-sm text-gray-500">Menandakan ekspansi kuat di sektor inti perikanan.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-4xl font-extrabold text-[#0B4F6C]">Rp 21,19 M</h3>
+                    <p class="mt-2 font-semibold text-gray-700">Total Penjualan ke PSU di 2024</p>
+                    <p class="text-sm text-gray-500">Menjadi pendorong utama pendapatan ekonomi wilayah.</p>
+                </div>
+                <div class="stat-card bg-red-50 border-red-200">
+                    <h3 class="text-4xl font-extrabold text-red-600">⚠</h3>
+                    <p class="mt-2 font-semibold text-red-800">Integritas Data</p>
+                    <p class="text-sm text-red-600">Perbedaan signifikan antara data agregat dan mentah untuk 2025.</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3 class="text-xl font-bold mb-2 text-center">Gambaran Besar: Tren Pendapatan Sektor Utama (2023-2025)</h3>
+                <p class="text-center text-sm text-gray-600 mb-4">Grafik ini memvisualisasikan skala dan pertumbuhan dari tiga aliran pendapatan terbesar. Sektor penjualan produk perikanan ke PSU secara konsisten mendominasi, menunjukkan peran sentralnya dalam ekonomi. Data 2025 hanya mencakup Kuartal 1.</p>
+                <div class="chart-container mx-auto max-w-5xl">
+                    <canvas id="overallTrendChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="fisheries" class="mb-16 text-center">
+            <h2 class="section-title">Mesin Pertumbuhan: Sektor Perikanan</h2>
+            <p class="section-subtitle mx-auto">Sektor perikanan adalah tulang punggung ekonomi. Analisis mendalam menunjukkan dominasi produk tertentu dan perubahan signifikan dalam lini produksi.</p>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mt-8 items-center">
+                <div class="md:col-span-2 stat-card">
+                    <h3 class="text-xl font-bold mb-2">Komposisi Penjualan ke PSU (2024)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Produk olahan Kakap (Fillet & Steak) menyumbang bagian terbesar dari total penjualan senilai Rp 21,19 Miliar, menyoroti pentingnya produk bernilai tambah ini.</p>
+                    <div class="chart-container h-72 md:h-80">
+                        <canvas id="psuSalesDonut"></canvas>
+                    </div>
+                </div>
+                <div class="md:col-span-3 stat-card">
+                    <h3 class="text-xl font-bold mb-2">Komposisi Produksi Perikanan Tahunan</h3>
+                    <p class="text-sm text-gray-600 mb-4">Segmen "Non PPP" menjadi kontributor utama nilai produksi. Perhatikan hilangnya produksi "Ikan Asin Kering" secara total pada Q1 2025, sebuah perubahan operasional yang signifikan.</p>
+                    <div class="chart-container">
+                        <canvas id="productionCompositionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="commerce" class="mb-16 text-center">
+            <h2 class="section-title">Denyut Nadi Komunitas: Kios & Jasa Lokal</h2>
+            <p class="section-subtitle mx-auto">Kinerja unit bisnis di tingkat komunitas menunjukkan gambaran yang beragam, dari pertumbuhan stabil hingga unit yang tidak aktif dan penjualan yang fluktuatif.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                 <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-2">Perbandingan Omzet Grosir & Kios Tahunan</h3>
+                    <p class="text-sm text-gray-600 mb-4">Kinerja bervariasi antar unit. Kios Manasari menunjukkan pertumbuhan kuat, sementara Kios Paumako secara konsisten tidak mencatat penjualan, menandakan adanya masalah operasional.</p>
+                    <div class="chart-container">
+                        <canvas id="kiosSalesChart"></canvas>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-2">Penjualan Musiman: Es Batu & BBM (2024)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Penjualan untuk layanan penting ini menunjukkan pola yang sangat fluktuatif, dengan beberapa bulan mencatat nol penjualan. Ini mengindikasikan tantangan dalam pasokan atau permintaan yang musiman.</p>
+                    <div class="chart-container">
+                        <canvas id="volatileSalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="mb-16 text-center">
+             <h2 class="section-title">Analisis Strategis & Profil Kampung</h2>
+            <p class="section-subtitle mx-auto">Setiap kampung memiliki profil ekonomi yang unik, menghadirkan kekuatan, kelemahan, peluang, dan ancaman yang berbeda bagi pengembangan wilayah secara keseluruhan.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 text-left">
+                <div class="stat-card border-l-4 border-green-500">
+                    <h3 class="text-2xl font-bold mb-2">✅ Kekuatan: Motor Penggerak Ekonomi</h3>
+                    <p><b>Nawaripi & Koperapoka</b> adalah kekuatan utama di sektor perikanan, menunjukkan pertumbuhan pendapatan yang konsisten dan kuat. Keberhasilan mereka menjadi model untuk replikasi.</p>
+                </div>
+                <div class="stat-card border-l-4 border-blue-500">
+                    <h3 class="text-2xl font-bold mb-2">🚀 Peluang: Model Diversifikasi</h3>
+                    <p><b>Nayaro</b> menonjol dengan pendapatan "Lain-Lain" yang signifikan. Ini menunjukkan basis ekonomi yang lebih terdiversifikasi dan tangguh, sebuah strategi yang dapat dipromosikan ke kampung lain.</p>
+                </div>
+                <div class="stat-card border-l-4 border-yellow-500">
+                     <h3 class="text-2xl font-bold mb-2">⚠️ Kelemahan: Ketergantungan Tinggi</h3>
+                    <p><b>Ayuka & Tipuka</b> sangat bergantung pada sektor pertanian dan perikanan. Kurangnya diversifikasi membuat mereka rentan terhadap fluktuasi pasar dan risiko lingkungan.</p>
+                </div>
+                <div class="stat-card border-l-4 border-red-500">
+                    <h3 class="text-2xl font-bold mb-2">❗ Ancaman: Isu Operasional & Data</h3>
+                    <p><b>Kios Paumako</b> yang tidak aktif, berhentinya produksi <b>Ikan Asin Kering</b>, dan <b>inkonsistensi data</b> adalah ancaman mendasar yang menghambat potensi penuh dan pengambilan keputusan yang akurat.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="recommendations" class="mb-16">
+             <h2 class="section-title text-center">Rekomendasi Utama</h2>
+            <div class="max-w-4xl mx-auto mt-8 bg-gray-50 p-8 rounded-lg shadow-inner">
+                <ul class="space-y-4 list-disc list-inside">
+                    <li><strong class="text-gray-800">Tingkatkan Integritas Data:</strong> Lakukan audit proses agregasi data untuk memastikan pelaporan *real-time* yang akurat, terutama untuk data tahun berjalan.</li>
+                    <li><strong class="text-gray-800">Investigasi Unit Tidak Aktif:</strong> Selidiki status operasional Kios Paumako dan alasan di balik penghentian produksi Ikan Asin Kering untuk membuka potensi pendapatan yang hilang.</li>
+                    <li><strong class="text-gray-800">Optimalkan Penjualan Musiman:</strong> Lakukan riset pasar untuk memahami pola permintaan BBM & Es Batu, lalu sesuaikan strategi inventaris dan penjualan untuk menstabilkan pendapatan.</li>
+                    <li><strong class="text-gray-800">Promosikan Diversifikasi Ekonomi:</strong> Gunakan model sukses Nayaro untuk mengembangkan program percontohan di Ayuka dan Tipuka, mengurangi ketergantungan pada sektor primer.</li>
+                    <li><strong class="text-gray-800">Perkuat Sektor Perikanan Inti:</strong> Lanjutkan investasi pada infrastruktur dan teknologi di kampung berkinerja tinggi seperti Nawaripi dan Koperapoka untuk memaksimalkan pendorong ekonomi utama.</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center py-8 px-4 border-t">
+        <p class="text-sm text-gray-500">Infografik ini dihasilkan berdasarkan Laporan Analisis Kinerja Operasional dan Ekonomi Komunitas Pesisir.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const FONT_COLOR = '#040F16';
+            const BORDER_COLOR = '#e5e7eb';
+            const GRID_COLOR = '#f1f5f9';
+
+            const tooltipTitleCallback = function(tooltipItems) {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                }
+                return label;
+            };
+
+            const formatCurrency = (value) => {
+                if (Math.abs(value) >= 1e9) {
+                    return (value / 1e9).toFixed(2) + ' M';
+                }
+                if (Math.abs(value) >= 1e6) {
+                    return (value / 1e6).toFixed(1) + ' Jt';
+                }
+                if (Math.abs(value) >= 1e3) {
+                    return (value / 1e3).toFixed(0) + ' Rb';
+                }
+                return value;
+            }
+
+            const chartDefaultOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: FONT_COLOR,
+                            boxWidth: 15,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { 
+                            color: FONT_COLOR,
+                            callback: formatCurrency
+                        },
+                        grid: { color: GRID_COLOR }
+                    },
+                    x: {
+                        ticks: { color: FONT_COLOR },
+                        grid: { display: false },
+                        border: { color: BORDER_COLOR }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('overallTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: ['2023', '2024', ['2025', '(Q1)']],
+                    datasets: [{
+                        label: ['Penjualan PPI', 'PRONOMI ke PSU'],
+                        data: [15460391280, 21192626100, 7707988000],
+                        borderColor: '#01BAEF',
+                        backgroundColor: '#01BAEF20',
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'Produksi Perikanan',
+                        data: [4253704216.6, 4974219872.2, 1397561000],
+                        borderColor: '#0B4F6C',
+                        backgroundColor: '#0B4F6C20',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: chartDefaultOptions
+            });
+
+            new Chart(document.getElementById('psuSalesDonut'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fillet Kakap', 'Kakap Steak', 'Lainnya', 'Kepala Kakap'],
+                    datasets: [{
+                        label: 'Penjualan 2024',
+                        data: [5908390700, 7591413400, 7047540000, 445312000],
+                        backgroundColor: ['#01BAEF', '#0B4F6C', '#1e90ff', '#87CEEB'],
+                        borderColor: '#FBFBFF',
+                        borderWidth: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: FONT_COLOR, boxWidth: 15, padding: 15 } },
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('productionCompositionChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['2023', '2024', ['2025', '(Q1)']],
+                    datasets: [{
+                        label: 'Non PPP',
+                        data: [3538889216, 4664963000, 1349165000],
+                        backgroundColor: '#0B4F6C',
+                    }, {
+                        label: 'PPP',
+                        data: [329680000, 330185200, 48396000],
+                        backgroundColor: '#01BAEF',
+                    }, {
+                        label: 'Ikan Asin Kering',
+                        data: [385135000, 53205100, 0],
+                        backgroundColor: '#F59E0B',
+                    }]
+                },
+                options: {
+                    ...chartDefaultOptions,
+                    scales: { ...chartDefaultOptions.scales, x: { stacked: true }, y: { stacked: true } }
+                }
+            });
+            
+            new Chart(document.getElementById('kiosSalesChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['2023', '2024', ['2025', '(Q1)']],
+                    datasets: [{
+                        label: 'Grosir Otakwa',
+                        data: [193041000, 195345000, 92215000],
+                        backgroundColor: '#0B4F6C',
+                    }, {
+                        label: 'Kios Manasari',
+                        data: [38344000, 72160000, 18950000],
+                        backgroundColor: '#01BAEF',
+                    }, {
+                        label: 'Kios Nayaro',
+                        data: [184815000, 184332000, 43213000],
+                        backgroundColor: '#1e90ff',
+                    }, {
+                        label: 'Kios Paumako',
+                        data: [0, 0, 0],
+                        backgroundColor: '#F87171',
+                    }]
+                },
+                options: chartDefaultOptions
+            });
+
+            new Chart(document.getElementById('volatileSalesChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [{
+                        label: 'Penjualan Es Batu (2024)',
+                        data: [1785000, 3780000, 2480000, 970000, 750000, 1250000, 0, 0, 1250000, 1250000, 0, 0],
+                        borderColor: '#01BAEF',
+                        tension: 0.4
+                    }, {
+                        label: 'Penjualan BBM (2024)',
+                        data: [0, 6897500, 15345000, 7704500, 10199000, 0, 0, 10307500, 8875000, 7982500, 4800000, 12940000],
+                        borderColor: '#F97316',
+                        tension: 0.4
+                    }]
+                },
+                options: chartDefaultOptions
+            });
+
+        });
+    </script>
+
+</body>
+</html>
